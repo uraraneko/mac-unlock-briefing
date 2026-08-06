@@ -1,0 +1,25 @@
+# 示例：复制为 setup.config 或 ./setup.sh --config setup.config.example
+# 与 setup.config 字段相同；此文件便于文档与 CI 对照。
+
+INSTALL_HAMMERSPOON=true
+HAMMERSPOON_CASK="hammerspoon"
+HAMMERSPOON_APP="/Applications/Hammerspoon.app"
+INSTALL_LUA=true
+LUA_FORMULA="lua"
+REQUIRE_BREW=true
+
+HAMMERSPOON_CONFIG_DIR="${HOME}/.hammerspoon"
+DEPLOY_MODE="symlink"
+DEPLOY_FILES="init.lua config.lua briefing.lua content.json"
+CONTENT_EXAMPLE="content.example.json"
+CONTENT_FILE="content.json"
+ON_EXISTING="backup"
+BACKUP_SUFFIX_PREFIX=".bak"
+
+OPEN_APP_AFTER_SETUP=true
+ENABLE_LAUNCH_AT_LOGIN=true
+LOGIN_ITEM_NAME="Hammerspoon"
+
+VERIFY_DEPLOY=true
+PRINT_ACCESSIBILITY_HINT=true
+RUN_TESTS_AFTER_SETUP=false

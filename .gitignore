@@ -1,0 +1,10 @@
+.DS_Store
+*.swp
+*.swo
+*~
+.idea/
+.vscode/
+*.bak.*
+
+# Personal content — never commit (use content.example.json as template)
+content.json
