@@ -11,8 +11,6 @@ REQUIRE_BREW=true
 HAMMERSPOON_CONFIG_DIR="${HOME}/.hammerspoon"
 DEPLOY_MODE="symlink"
 DEPLOY_FILES="init.lua config.lua briefing.lua content.json"
-CONTENT_EXAMPLE="content.example.json"
-CONTENT_FILE="content.json"
 ON_EXISTING="backup"
 BACKUP_SUFFIX_PREFIX=".bak"
 

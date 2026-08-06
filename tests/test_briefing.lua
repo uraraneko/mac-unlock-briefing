@@ -233,20 +233,19 @@ end
 
 print("=== sample fixtures from repo ===")
 do
-  -- content.json is gitignored; tests use committed content.example.json
-  local f = io.open(REPO .. "content.example.json", "r")
-  assert_true(f ~= nil, "content.example.json exists")
+  local f = io.open(REPO .. "content.json", "r")
+  assert_true(f ~= nil, "content.json exists")
   local raw = f:read("*a")
   f:close()
   local content = briefing.parseContent(raw, content_json_decode)
-  assert_true(#content.todos >= 1, "example has at least one todo")
-  assert_eq(content.todos[1], "完成报告初稿", "example first todo")
-  assert_true(#content.countdowns >= 1, "example has countdowns")
+  assert_true(#content.todos >= 1, "demo content has at least one todo")
+  assert_eq(content.todos[1], "完成报告初稿", "demo first todo")
+  assert_true(#content.countdowns >= 1, "demo content has countdowns")
   local lines = briefing.getCountdowns(
     content.countdowns,
     os.time({ year = 2026, month = 8, day = 5, hour = 12 })
   )
-  assert_true(#lines >= 1, "example countdowns produce lines")
+  assert_true(#lines >= 1, "demo countdowns produce lines")
 
   local cfg = dofile(REPO .. "config.lua")
   assert_eq(cfg.showDuration, 8, "config showDuration default 8")

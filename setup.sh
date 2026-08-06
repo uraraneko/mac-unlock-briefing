@@ -145,22 +145,7 @@ if [[ "${INSTALL_LUA:-false}" == "true" ]]; then
   fi
 fi
 
-# --- 4. Seed personal content.json from example (never committed) -------------
-CONTENT_EXAMPLE="${CONTENT_EXAMPLE:-content.example.json}"
-CONTENT_FILE="${CONTENT_FILE:-content.json}"
-example_src="${REPO_ROOT}/${CONTENT_EXAMPLE}"
-content_src="${REPO_ROOT}/${CONTENT_FILE}"
-if [[ ! -f "$content_src" ]]; then
-  if [[ ! -f "$example_src" ]]; then
-    die "Missing ${CONTENT_EXAMPLE}; cannot seed ${CONTENT_FILE}"
-  fi
-  log "Seed ${CONTENT_FILE} from ${CONTENT_EXAMPLE} (personal; gitignored)"
-  run cp "$example_src" "$content_src"
-else
-  info "${CONTENT_FILE} already exists (kept as-is)"
-fi
-
-# --- 5. Deploy config files ---------------------------------------------------
+# --- 4. Deploy config files ---------------------------------------------------
 log "Deploy mode=${DEPLOY_MODE} → ${HAMMERSPOON_CONFIG_DIR}"
 run mkdir -p "${HAMMERSPOON_CONFIG_DIR}"
 
@@ -222,7 +207,7 @@ for rel in ${DEPLOY_FILES}; do
   esac
 done
 
-# --- 6. Verify deploy ---------------------------------------------------------
+# --- 5. Verify deploy ---------------------------------------------------------
 if [[ "${VERIFY_DEPLOY:-true}" == "true" ]] && ! $DRY_RUN; then
   log "Verifying deploy..."
   for rel in ${DEPLOY_FILES}; do
@@ -234,7 +219,7 @@ if [[ "${VERIFY_DEPLOY:-true}" == "true" ]] && ! $DRY_RUN; then
   done
 fi
 
-# --- 7. Launch at login (best-effort) -----------------------------------------
+# --- 6. Launch at login (best-effort) -----------------------------------------
 if [[ "${ENABLE_LAUNCH_AT_LOGIN:-false}" == "true" ]]; then
   log "Enable launch at login (best-effort)..."
   APP="${HAMMERSPOON_APP}"
@@ -259,7 +244,7 @@ OSA
   fi
 fi
 
-# --- 8. Open app --------------------------------------------------------------
+# --- 7. Open app --------------------------------------------------------------
 SHOULD_OPEN="${OPEN_APP_AFTER_SETUP:-true}"
 if $FORCE_NO_OPEN; then
   SHOULD_OPEN=false
@@ -273,7 +258,7 @@ if [[ "$SHOULD_OPEN" == "true" ]]; then
   fi
 fi
 
-# --- 9. Optional tests --------------------------------------------------------
+# --- 8. Optional tests --------------------------------------------------------
 if [[ "${RUN_TESTS_AFTER_SETUP:-false}" == "true" ]]; then
   if need_cmd lua; then
     log "Running tests..."
@@ -283,33 +268,18 @@ if [[ "${RUN_TESTS_AFTER_SETUP:-false}" == "true" ]]; then
   fi
 fi
 
-# --- 10. Accessibility hint ----------------------------------------------------
+# --- 9. Accessibility hint ----------------------------------------------------
 if [[ "${PRINT_ACCESSIBILITY_HINT:-true}" == "true" ]]; then
   cat <<EOF
 
 ------------------------------------------------------------------------------
-安装与配置已按 setup.config 完成。
+安装完成。
 
-【必须手动一次】辅助功能权限（macOS 无法静默代授）：
-  系统设置 → 隐私与安全性 → 辅助功能 → 启用 Hammerspoon
+1. 系统设置 → 隐私与安全性 → 辅助功能 → 启用 Hammerspoon
+2. 菜单栏锤子 → Reload Config
+3. 锁屏再解锁，或按 ⌘⌃⇧B 预览
 
-【建议】
-  菜单栏锤子图标 → Reload Config
-  可选：锤子菜单 → Launch Hammerspoon at login（若自动登录项失败）
-
-【验证】
-  1. 看到短暂提示「每日简报已启动」
-  2. Ctrl+Cmd+Q 锁屏 → 解锁 → 约 0.8s 后出现待办+倒计时
-  3. 再解锁一次：当天应不再弹（onlyFirstUnlockOfDay=true）
-
-【改待办 / 倒计时】
-  只改本地 content.json（已 gitignore，不会进仓库）
-  仓库模板：content.example.json
-  行为/UI：config.lua → Reload Config
-
-【另一台设备复现】
-  git clone <repo> && cd mac-unlock-briefing && ./setup.sh
-  （首次会从 content.example.json 生成 content.json）
+改待办/倒计时：编辑 content.json 后 Reload Config
 ------------------------------------------------------------------------------
 EOF
 fi

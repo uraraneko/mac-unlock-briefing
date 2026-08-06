@@ -29,22 +29,6 @@ REPO = abspath(REPO) .. "/"
 
 package.path = REPO .. "?.lua;" .. REPO .. "tests/?.lua;" .. package.path
 
--- content.json is gitignored; seed from example so load harness has fixtures
-local content_path = REPO .. "content.json"
-local example_path = REPO .. "content.example.json"
-local cf = io.open(content_path, "r")
-if not cf then
-  local ef = assert(io.open(example_path, "r"), "content.example.json missing")
-  local raw = ef:read("*a")
-  ef:close()
-  local out = assert(io.open(content_path, "w"))
-  out:write(raw)
-  out:close()
-  print("Seeded content.json from content.example.json for load harness")
-else
-  cf:close()
-end
-
 local mock = dofile(REPO .. "tests/mock_hs.lua")
 mock.configdir = REPO:gsub("/$", "") -- init uses configdir without trailing slash ideally
 -- config files live at REPO root; set configdir to REPO root
