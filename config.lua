@@ -19,7 +19,7 @@ return {
   unlockDelay = 0.8,
 
   -- ---------------------------------------------------------------------------
-  -- UI：hs.alert 外观（改这里 → Reload Config → ⌘⌃⇧B 预览）
+  -- UI：hs.alert 外观（改这里 → Reload Config → ⌘⇧U 预览）
   -- ---------------------------------------------------------------------------
   alertStyle = {
     textFont = "PingFang SC",
@@ -38,7 +38,7 @@ return {
   -- Debug / force show
   -- ---------------------------------------------------------------------------
   forceHotkey = {
-    mods = { "cmd", "ctrl", "shift" },
-    key = "b",
+    mods = { "cmd", "shift" },
+    key = "u",
   },
 }

@@ -35,4 +35,4 @@ cd mac-unlock-briefing
 
 显示时长、样式、热键等改 **`config.lua`**。
 
-改完后 **Reload Config**。开发调试可按 **⌘⌃⇧B** 强制弹一次。
+改完后 **Reload Config**。开发调试可按 **⌘⇧U** 强制弹一次。

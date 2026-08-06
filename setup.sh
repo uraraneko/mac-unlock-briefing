@@ -277,7 +277,7 @@ if [[ "${PRINT_ACCESSIBILITY_HINT:-true}" == "true" ]]; then
 
 1. 系统设置 → 隐私与安全性 → 辅助功能 → 启用 Hammerspoon
 2. 菜单栏锤子 → Reload Config
-3. 锁屏再解锁，或按 ⌘⌃⇧B 预览
+3. 锁屏再解锁，或按 ⌘⇧U 预览
 
 改待办/倒计时：编辑 content.json 后 Reload Config
 ------------------------------------------------------------------------------

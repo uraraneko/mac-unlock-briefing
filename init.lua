@@ -125,7 +125,7 @@ if type(config.forceHotkey) == "table"
   and type(config.forceHotkey.key) == "string"
   and hs.hotkey
 then
-  local mods = config.forceHotkey.mods or { "cmd", "ctrl", "shift" }
+  local mods = config.forceHotkey.mods or { "cmd", "shift" }
   local key = config.forceHotkey.key
   forceHotkey = hs.hotkey.bind(mods, key, function()
     forceShowBriefing()
