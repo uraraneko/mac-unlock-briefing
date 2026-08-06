@@ -4,18 +4,29 @@ local M = {}
 
 M.configdir = nil -- set by harness
 M._alerts = {}
+M._closed = {}
 M._timers = {}
 M._watcher_started = false
 M._watcher_callback = nil
 M._json_decode = nil -- optional override
 M._hotkeys = {}
+M._alert_seq = 0
+-- When true (default), short doAfter delays (unlock settle) fire immediately so
+-- existing unlock tests stay simple. Long delays (alert showDuration hide trackers)
+-- are left pending — fire with fireNextTimer() if a test needs them.
+M._auto_fire_timers = true
+M._auto_fire_max_delay = 2
 
 function M.reset()
   M._alerts = {}
+  M._closed = {}
   M._timers = {}
   M._watcher_started = false
   M._watcher_callback = nil
   M._hotkeys = {}
+  M._alert_seq = 0
+  M._auto_fire_timers = true
+  M._auto_fire_max_delay = 2
 end
 
 M.alert = {
@@ -24,7 +35,16 @@ M.alert = {
     if type(style_or_duration) == "number" then
       d = style_or_duration
     end
-    table.insert(M._alerts, { msg = msg, duration = d, style = style_or_duration })
+    M._alert_seq = M._alert_seq + 1
+    local id = "alert-" .. tostring(M._alert_seq)
+    table.insert(M._alerts, { id = id, msg = msg, duration = d, style = style_or_duration })
+    return id
+  end,
+  closeSpecific = function(id)
+    table.insert(M._closed, id)
+  end,
+  closeAll = function()
+    table.insert(M._closed, "*")
   end,
 }
 
@@ -76,12 +96,43 @@ M.json = {
 
 M.timer = {
   doAfter = function(delay, fn)
-    table.insert(M._timers, { delay = delay, fn = fn })
-    if type(fn) == "function" then
-      fn()
+    local entry = {
+      delay = delay,
+      fn = fn,
+      _stopped = false,
+      _fired = false,
+    }
+    function entry:stop()
+      self._stopped = true
     end
+    function entry:fire()
+      if self._stopped or self._fired then
+        return false
+      end
+      self._fired = true
+      if type(self.fn) == "function" then
+        self.fn()
+      end
+      return true
+    end
+    table.insert(M._timers, entry)
+    local maxd = M._auto_fire_max_delay or 2
+    if M._auto_fire_timers and type(delay) == "number" and delay <= maxd then
+      entry:fire()
+    end
+    return entry
   end,
 }
+
+--- Fire the next unfired, unstopped timer (for tests with _auto_fire_timers = false).
+function M.fireNextTimer()
+  for _, t in ipairs(M._timers) do
+    if not t._stopped and not t._fired then
+      return t:fire()
+    end
+  end
+  return false
+end
 
 M.caffeinate = {
   watcher = {

@@ -13,6 +13,10 @@ local briefing = dofile(configdir .. "/briefing.lua")
 -- State: last calendar day we successfully showed the briefing
 local lastShownDate = nil
 
+-- Currently visible briefing alert (hs.alert UUID) + auto-clear timer
+local activeBriefingId = nil
+local hideTimer = nil
+
 local function jsonDecode()
   if hs and hs.json and hs.json.decode then
     return hs.json.decode
@@ -56,6 +60,34 @@ local function buildMessage()
   })
 end
 
+local function stopHideTimer()
+  if hideTimer then
+    pcall(function()
+      hideTimer:stop()
+    end)
+    hideTimer = nil
+  end
+end
+
+--- True while a briefing alert is still expected to be on screen.
+local function isBriefingVisible()
+  return activeBriefingId ~= nil
+end
+
+--- Dismiss the current briefing alert immediately (if any).
+local function dismissBriefing()
+  if not activeBriefingId then
+    stopHideTimer()
+    return false
+  end
+  if hs.alert and hs.alert.closeSpecific then
+    hs.alert.closeSpecific(activeBriefingId)
+  end
+  activeBriefingId = nil
+  stopHideTimer()
+  return true
+end
+
 --- Show briefing.
 --- @param opts table|nil
 ---   opts.force boolean  if true, bypass onlyFirstUnlockOfDay (for debug)
@@ -67,6 +99,9 @@ local function showBriefing(opts)
     return false
   end
 
+  -- Replace any still-visible briefing instead of stacking
+  dismissBriefing()
+
   local msg = buildMessage()
   local duration = config.showDuration or 8
   local style = config.alertStyle or {
@@ -76,7 +111,18 @@ local function showBriefing(opts)
     textColor = { white = 1, alpha = 1 },
     radius = 12,
   }
-  hs.alert.show(msg, style, duration)
+  local id = hs.alert.show(msg, style, duration)
+  activeBriefingId = id
+
+  -- hs.alert auto-hides after duration; mirror that so toggle knows state
+  if hs.timer and hs.timer.doAfter then
+    hideTimer = hs.timer.doAfter(duration, function()
+      if activeBriefingId == id then
+        activeBriefingId = nil
+        hideTimer = nil
+      end
+    end)
+  end
 
   lastShownDate = today
   return true
@@ -86,9 +132,21 @@ local function forceShowBriefing()
   return showBriefing({ force = true })
 end
 
+--- ⌘⇧U (config.forceHotkey): open if hidden, close if already open.
+local function toggleBriefing()
+  if isBriefingVisible() then
+    dismissBriefing()
+    return false
+  end
+  return forceShowBriefing()
+end
+
 local M = {
   showBriefing = showBriefing,
   forceShowBriefing = forceShowBriefing,
+  toggleBriefing = toggleBriefing,
+  dismissBriefing = dismissBriefing,
+  isBriefingVisible = isBriefingVisible,
   buildMessage = buildMessage,
   loadContent = loadContent,
   getTodos = getTodos,
@@ -128,10 +186,10 @@ then
   local mods = config.forceHotkey.mods or { "cmd", "shift" }
   local key = config.forceHotkey.key
   forceHotkey = hs.hotkey.bind(mods, key, function()
-    forceShowBriefing()
+    toggleBriefing()
   end)
   print(string.format(
-    "Unlock Briefing force hotkey: %s + %s",
+    "Unlock Briefing toggle hotkey: %s + %s",
     table.concat(mods, "+"),
     key
   ))

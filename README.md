@@ -33,4 +33,4 @@ Edit **`content.json`** (todos + countdowns):
 
 Display duration, style, and hotkeys: **`config.lua`**.
 
-After changes → **Reload Config**. For a quick preview while developing, press **⌘⇧U**.
+After changes → **Reload Config**. Press **⌘⇧U** to toggle a quick preview (open if hidden, close if already open).

@@ -131,12 +131,58 @@ if not forced or #mock._alerts < 1 then
 end
 print("forceShowBriefing bypassed gate: OK")
 
+if not mod.isBriefingVisible() then
+  print("FAIL: briefing should be visible after forceShowBriefing")
+  os.exit(1)
+end
+print("isBriefingVisible after show: true")
+
+-- Toggle while open → dismiss (⌘⇧U second press)
+mock._closed = {}
+local toggled_off = mod.toggleBriefing()
+if toggled_off ~= false then
+  print("FAIL: toggleBriefing while open should return false (closed)")
+  os.exit(1)
+end
+if mod.isBriefingVisible() then
+  print("FAIL: briefing should not be visible after toggle dismiss")
+  os.exit(1)
+end
+if #mock._closed < 1 then
+  print("FAIL: expected closeSpecific on toggle dismiss")
+  os.exit(1)
+end
+print("toggleBriefing dismisses open briefing: OK")
+
+-- Toggle while closed → show again
+mock._alerts = {}
+local toggled_on = mod.toggleBriefing()
+if not toggled_on or #mock._alerts < 1 then
+  print("FAIL: toggleBriefing while closed should show")
+  os.exit(1)
+end
+if not mod.isBriefingVisible() then
+  print("FAIL: briefing should be visible after toggle open")
+  os.exit(1)
+end
+print("toggleBriefing opens when closed: OK")
+
 -- Hotkey should be bound when config.forceHotkey is set
 if #mock._hotkeys < 1 then
   print("FAIL: expected force hotkey binding")
   os.exit(1)
 end
 print("force hotkey bound: " .. table.concat(mock._hotkeys[1].mods, "+") .. "+" .. mock._hotkeys[1].key)
+
+-- Hotkey callback should call toggle (close when open)
+mock._closed = {}
+local before_closed = #mock._closed
+mock._hotkeys[1].fn()
+if mod.isBriefingVisible() or #mock._closed <= before_closed then
+  print("FAIL: hotkey should dismiss visible briefing")
+  os.exit(1)
+end
+print("hotkey toggles (dismiss): OK")
 
 print("")
 print("LOAD HARNESS PASSED")
