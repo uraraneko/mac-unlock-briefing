@@ -12,9 +12,9 @@ cd mac-unlock-briefing
 ./setup.sh
 ```
 
-1. Grant **Accessibility** access: System Settings → Privacy & Security → Accessibility → enable Hammerspoon  
-2. Menu bar hammer icon → **Reload Config**  
-3. Lock the screen, unlock again — the briefing appears  
+1. Grant **Accessibility** access: System Settings → Privacy & Security → Accessibility → enable Hammerspoon
+2. Menu bar hammer icon → **Reload Config**
+3. Lock the screen, unlock again — the briefing appears
 
 Optional: hammer menu → **Launch Hammerspoon at login**.
 
@@ -25,11 +25,11 @@ Edit **`content.json`** (todos + countdowns):
 ```json
 {
   "todos": ["Draft the report", "Reply to email"],
-  "countdowns": [
-    { "title": "Launch", "date": "2026-12-31" }
-  ]
+  "countdowns": [{ "title": "Launch", "date": "2026-12-31" }]
 }
 ```
+
+![Unlock briefing shown after Mac unlock](docs/screenshots/unlock-briefing.jpg)
 
 Display duration, style, and hotkeys: **`config.lua`**.
 

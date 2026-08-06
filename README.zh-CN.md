@@ -31,6 +31,8 @@ cd mac-unlock-briefing
 }
 ```
 
+![Mac 解锁后显示的简报](docs/screenshots/unlock-briefing.jpg)
+
 显示时长、样式、热键等改 **`config.lua`**。
 
 改完后 **Reload Config**。开发调试可按 **⌘⌃⇧B** 强制弹一次。
