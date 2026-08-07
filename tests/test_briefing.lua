@@ -137,16 +137,31 @@ do
   -- Fixed "now": 2026-08-05 12:00:00 local
   local now = os.time({ year = 2026, month = 8, day = 5, hour = 12, min = 0, sec = 0 })
 
+  -- >= 7 days: weeks + days (2026-08-20 - 2026-08-05 12:00 => 14 days)
   local future = briefing.formatCountdown("项目上线", "2026-08-20", now)
   assert_match(future, "项目上线：还剩", "future has title and 还剩")
-  assert_match(future, "%d+ 天", "future has days")
-  assert_match(future, "%d+ 小时", "future has hours")
-
-  -- 2026-08-20 00:00 - 2026-08-05 12:00 = 14 days 12 hours
   local days = math.floor((os.time({ year = 2026, month = 8, day = 20, hour = 0 }) - now) / 86400)
-  local hours = math.floor(((os.time({ year = 2026, month = 8, day = 20, hour = 0 }) - now) % 86400) / 3600)
-  local expected = string.format("项目上线：还剩 %d 天 %d 小时", days, hours)
-  assert_eq(future, expected, "exact remaining days/hours for 项目上线")
+  assert_true(days >= 7, "fixture span is at least one week")
+  local expected = string.format("项目上线：还剩 %d 周 %d 天", math.floor(days / 7), days % 7)
+  assert_eq(future, expected, ">=1 week uses weeks/days for 项目上线")
+
+  -- < 7 days: days + hours (2026-08-10 - 2026-08-05 12:00 => 4 days 12 hours)
+  local soon = briefing.formatCountdown("周会", "2026-08-10", now)
+  local soonDays = math.floor((os.time({ year = 2026, month = 8, day = 10, hour = 0 }) - now) / 86400)
+  local soonHours = math.floor(((os.time({ year = 2026, month = 8, day = 10, hour = 0 }) - now) % 86400) / 3600)
+  assert_true(soonDays < 7, "fixture span is under one week")
+  local soonExpected = string.format("周会：还剩 %d 天 %d 小时", soonDays, soonHours)
+  assert_eq(soon, soonExpected, "<1 week uses days/hours")
+
+  -- exact 7-day boundary uses weeks/days
+  local weekBoundary = briefing.formatCountdown("里程碑", "2026-08-13", now)
+  local wbDays = math.floor((os.time({ year = 2026, month = 8, day = 13, hour = 0 }) - now) / 86400)
+  assert_true(wbDays >= 7, "7-day boundary still weeks/days")
+  assert_eq(
+    weekBoundary,
+    string.format("里程碑：还剩 %d 周 %d 天", math.floor(wbDays / 7), wbDays % 7),
+    "7 days formats as weeks/days"
+  )
 
   local past = briefing.formatCountdown("考试", "2026-01-01", now)
   assert_eq(past, "考试：已到期", "past date -> 已到期")

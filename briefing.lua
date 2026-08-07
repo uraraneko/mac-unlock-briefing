@@ -94,6 +94,11 @@ function M.formatCountdown(title, dateStr, now)
   local diff = target - now
   if diff > 0 then
     local days = math.floor(diff / 86400)
+    if days >= 7 then
+      local weeks = math.floor(days / 7)
+      local remDays = days % 7
+      return string.format("%s：还剩 %d 周 %d 天", title, weeks, remDays)
+    end
     local hours = math.floor((diff % 86400) / 3600)
     return string.format("%s：还剩 %d 天 %d 小时", title, days, hours)
   else
