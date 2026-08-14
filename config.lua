@@ -3,8 +3,15 @@
 -- Copy or symlink into ~/.hammerspoon/ alongside init.lua
 
 return {
-  -- 内容文件（相对 hs.configdir / 仓库根），待办 + 倒计时都在此 JSON
-  contentFile = "content.json",
+  -- 内容文件（相对 hs.configdir / 仓库根，或绝对路径）
+  -- 优先读取 data/content.json（若配置了私有同步库），兜底读取 content.json
+  contentFile = "data/content.json",
+
+  -- 是否在 ⌘⇧U 弹窗时自动执行后台双向同步（git pull --rebase & git push）
+  autoSyncOnToggle = true,
+
+  -- 数据同步目录（相对 hs.configdir 或绝对路径）
+  syncDir = "data",
 
   -- Display duration in seconds
   showDuration = 8,

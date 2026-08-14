@@ -18,9 +18,16 @@ cd mac-unlock-briefing
 
 可选：锤子菜单开启 **Launch Hammerspoon at login**。
 
+## 多设备同步（私有仓库）
+
+待办内容默认存放在本地私有数据仓库（或本地 `content.json`），不会被推送到本公开仓库：
+1. 默认数据路径优先读取 `~/.hammerspoon/data/content.json`。
+2. 每次按下 **⌘⇧U** 时，Hammerspoon 会在后台自动执行双向同步（`git pull --rebase` & `git push`），确保多台 Mac 上的待办与倒计时实时一致。
+3. 若同步时拉取到新数据，弹窗内容将自动刷新为最新内容。
+
 ## 配置
 
-编辑 **`content.json`**（待办 + 倒计时）：
+编辑 **`content.json`**（或 `data/content.json`）：
 
 ```json
 {

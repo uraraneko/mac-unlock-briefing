@@ -164,4 +164,17 @@ M.hotkey = {
   end,
 }
 
+M.task = {
+  new = function(launchPath, callback, args)
+    return {
+      start = function(self)
+        if type(callback) == "function" then
+          callback(0, "mock output", "")
+        end
+        return true
+      end
+    }
+  end,
+}
+
 return M

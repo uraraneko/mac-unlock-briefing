@@ -18,9 +18,16 @@ cd mac-unlock-briefing
 
 Optional: hammer menu → **Launch Hammerspoon at login**.
 
+## Multi-device Sync (Private Repo)
+
+Personal todos and countdowns are excluded from this public repo to protect privacy:
+1. Data is loaded with priority from `~/.hammerspoon/data/content.json` (or local `content.json`).
+2. Pressing **⌘⇧U** triggers a lightweight background two-way sync (`git pull --rebase` & `git push`).
+3. If new changes are pulled from your private data repo, the alert preview updates immediately in place.
+
 ## Configure
 
-Edit **`content.json`** (todos + countdowns):
+Edit **`content.json`** (or `data/content.json`):
 
 ```json
 {

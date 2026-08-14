@@ -248,8 +248,8 @@ end
 
 print("=== sample fixtures from repo ===")
 do
-  local f = io.open(REPO .. "content.json", "r")
-  assert_true(f ~= nil, "content.json exists")
+  local f = io.open(REPO .. "content.json.example", "r")
+  assert_true(f ~= nil, "content.json.example exists")
   local raw = f:read("*a")
   f:close()
   local content = briefing.parseContent(raw, content_json_decode)
@@ -265,7 +265,7 @@ do
   local cfg = dofile(REPO .. "config.lua")
   assert_eq(cfg.showDuration, 8, "config showDuration default 8")
   assert_true(cfg.onlyFirstUnlockOfDay == true, "config onlyFirstUnlockOfDay true")
-  assert_eq(cfg.contentFile, "content.json", "config points at content.json")
+  assert_eq(cfg.contentFile, "data/content.json", "config points at data/content.json")
   assert_true(cfg.countdowns == nil, "countdowns live in content.json not config.lua")
 end
 

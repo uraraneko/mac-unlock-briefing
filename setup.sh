@@ -207,7 +207,7 @@ for rel in ${DEPLOY_FILES}; do
   esac
 done
 
-# --- 5. Verify deploy ---------------------------------------------------------
+# --- 5. Verify deploy & setup data ---------------------------------------------
 if [[ "${VERIFY_DEPLOY:-true}" == "true" ]] && ! $DRY_RUN; then
   log "Verifying deploy..."
   for rel in ${DEPLOY_FILES}; do
@@ -217,6 +217,17 @@ if [[ "${VERIFY_DEPLOY:-true}" == "true" ]] && ! $DRY_RUN; then
     fi
     info "present: $dst$( [[ -L "$dst" ]] && printf ' -> %s' "$(readlink "$dst")" )"
   done
+fi
+
+# Clone private data repository if DATA_REPO_URL is configured
+if [[ -n "${DATA_REPO_URL:-}" ]]; then
+  DATA_DIR="${HAMMERSPOON_CONFIG_DIR}/${DATA_REPO_DIR:-data}"
+  if [[ ! -d "$DATA_DIR/.git" ]]; then
+    log "Cloning private data repo to $DATA_DIR..."
+    run git clone "$DATA_REPO_URL" "$DATA_DIR"
+  else
+    info "data repo already present at $DATA_DIR"
+  fi
 fi
 
 # --- 6. Launch at login (best-effort) -----------------------------------------

@@ -26,21 +26,32 @@ local function jsonDecode()
   end
 end
 
---- Load todos + countdowns from unified external JSON (content.json)
+--- Load todos + countdowns from unified external JSON (content.json / data/content.json)
 local function loadContent()
-  local name = config.contentFile or "content.json"
-  local path
-  if name:sub(1, 1) == "/" then
-    path = name
-  else
-    path = configdir .. "/" .. name
+  local candidates = {}
+  if config.contentFile then
+    table.insert(candidates, config.contentFile)
   end
-  local file = io.open(path, "r")
-  if not file then
+  table.insert(candidates, "data/content.json")
+  table.insert(candidates, "content.json")
+  table.insert(candidates, "content.json.example")
+
+  local raw = nil
+  for _, name in ipairs(candidates) do
+    local path = (name:sub(1, 1) == "/") and name or (configdir .. "/" .. name)
+    local file = io.open(path, "r")
+    if file then
+      raw = file:read("*a")
+      file:close()
+      if raw and raw ~= "" then
+        break
+      end
+    end
+  end
+
+  if not raw then
     return { todos = {}, countdowns = {} }
   end
-  local raw = file:read("*a")
-  file:close()
   return briefing.parseContent(raw, jsonDecode())
 end
 
@@ -132,13 +143,73 @@ local function forceShowBriefing()
   return showBriefing({ force = true })
 end
 
+local syncInProgress = false
+
+--- Asynchronously sync data repository with git pull --rebase and git push
+local function syncDataRepo(callback)
+  if syncInProgress then
+    if callback then callback(false, "sync already in progress") end
+    return
+  end
+
+  local syncDirName = config.syncDir or "data"
+  local targetDir = (syncDirName:sub(1, 1) == "/") and syncDirName or (configdir .. "/" .. syncDirName)
+
+  -- Check if sync directory contains a git repository
+  local gitDir = io.open(targetDir .. "/.git/HEAD", "r")
+  if not gitDir then
+    if callback then callback(false, "not a git repo") end
+    return
+  end
+  gitDir:close()
+
+  if not (hs and hs.task and hs.task.new) then
+    if callback then callback(false, "hs.task unavailable") end
+    return
+  end
+
+  syncInProgress = true
+  local syncScript = string.format([[
+    cd "%s" || exit 0
+    if [ -n "$(git status --porcelain 2>/dev/null)" ]; then
+      git add -A && git commit -m "auto: sync $(date '+%%Y-%%m-%%d %%H:%%M:%%S')" 2>/dev/null || true
+    fi
+    git pull --rebase origin main 2>/dev/null || true
+    git push origin main 2>/dev/null || true
+  ]], targetDir)
+
+  local task = hs.task.new("/bin/sh", function(exitCode, stdOut, stdErr)
+    syncInProgress = false
+    local success = (exitCode == 0)
+    if callback then
+      callback(success, stdOut, stdErr)
+    end
+  end, { "-c", syncScript })
+
+  task:start()
+end
+
 --- ⌘⇧U (config.forceHotkey): open if hidden, close if already open.
 local function toggleBriefing()
   if isBriefingVisible() then
     dismissBriefing()
     return false
   end
-  return forceShowBriefing()
+
+  local shown = forceShowBriefing()
+
+  -- Perform background sync if enabled
+  if config.autoSyncOnToggle ~= false then
+    syncDataRepo(function(success)
+      if success and isBriefingVisible() then
+        -- Update content in place if still visible
+        dismissBriefing()
+        forceShowBriefing()
+      end
+    end)
+  end
+
+  return shown
 end
 
 local M = {
@@ -151,6 +222,7 @@ local M = {
   loadContent = loadContent,
   getTodos = getTodos,
   getCountdownLines = getCountdownLines,
+  syncDataRepo = syncDataRepo,
   briefing = briefing,
   config = config,
   getLastShownDate = function()
