@@ -198,15 +198,9 @@ local function toggleBriefing()
 
   local shown = forceShowBriefing()
 
-  -- Perform background sync if enabled
+  -- Perform silent background sync if enabled (never re-shows alert)
   if config.autoSyncOnToggle ~= false then
-    syncDataRepo(function(success)
-      if success and isBriefingVisible() then
-        -- Update content in place if still visible
-        dismissBriefing()
-        forceShowBriefing()
-      end
-    end)
+    syncDataRepo()
   end
 
   return shown
