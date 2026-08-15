@@ -4,6 +4,8 @@
 
 Show today’s todos and key-date countdowns when you unlock your Mac — powered by [Hammerspoon](https://www.hammerspoon.org/).
 
+Native Swift app (no Hammerspoon): [unlock-briefing](https://github.com/uraraneko/unlock-briefing).
+
 ## Install
 
 ```bash

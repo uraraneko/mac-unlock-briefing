@@ -4,6 +4,8 @@
 
 macOS 解锁屏幕后，自动弹出今日待办和关键日期倒计时（基于 [Hammerspoon](https://www.hammerspoon.org/)）。
 
+原生 Swift 版（不再依赖 Hammerspoon）：[unlock-briefing](https://github.com/uraraneko/unlock-briefing)。
+
 ## 安装
 
 ```bash

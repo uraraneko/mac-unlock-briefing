@@ -6,3 +6,5 @@
 .vscode/
 *.bak.*
 content.json
+**/xcuserdata/
+**/DerivedData/
